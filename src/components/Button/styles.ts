@@ -1,19 +1,16 @@
 import styled from 'styled-components'
 
-export type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'success'
+export const BUTTON_VARIANTS = {
+  warning: 'yellow-500',
+  danger: 'red-500',
+  success: 'green-500',
+} as const
 
-interface ButtonContainerProps {
-  variant: ButtonVariant
+export interface ButtonVariantProps {
+  variant: keyof typeof BUTTON_VARIANTS
 }
 
-// const buttonVariants = {
-//   primary: 'purple',
-//   secondary: 'orange',
-//   danger: 'red',
-//   success: 'green-500',
-// }
-
-export const ButtonContainer = styled.button<ButtonContainerProps>`
+export const ButtonContainer = styled.button<ButtonVariantProps>`
   width: 100%;
   border: 0;
   padding: 1rem;
@@ -30,10 +27,12 @@ export const ButtonContainer = styled.button<ButtonContainerProps>`
 
   color: ${(props) => props.theme['gray-100']};
 
-  background: ${(props) => props.theme['green-500']};
+  background: ${(props) => props.theme[BUTTON_VARIANTS[props.variant]]};
+
+  transition: all 0.5s;
 
   &:not(:disabled):hover {
-    background: ${(props) => props.theme['green-700']};
+    filter: brightness(130%);
   }
 
   &:disabled {

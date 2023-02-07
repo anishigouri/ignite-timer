@@ -1,11 +1,19 @@
-import { ReactElement } from 'react'
-import { ButtonContainer, ButtonVariant } from './styles'
+import { ButtonHTMLAttributes, ReactElement } from 'react'
+import { ButtonContainer, BUTTON_VARIANTS } from './styles'
 
-interface ButtonProps {
-  variant?: ButtonVariant
+interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: keyof typeof BUTTON_VARIANTS
   children: ReactElement
 }
 
-export function Button({ variant = 'primary', children }: ButtonProps) {
-  return <ButtonContainer variant={variant}>{children}</ButtonContainer>
+export function Button({
+  variant = 'success',
+  children,
+  ...rest
+}: ButtonProps) {
+  return (
+    <ButtonContainer variant={variant} {...rest}>
+      {children}
+    </ButtonContainer>
+  )
 }
