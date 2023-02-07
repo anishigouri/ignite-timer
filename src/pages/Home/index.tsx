@@ -11,6 +11,9 @@ import {
   Separator,
 } from './styles'
 
+import { toast } from 'react-toastify'
+import { useEffect } from 'react'
+
 const newCycleFormValidationSchema = zod.object({
   task: zod.string().min(1, 'Informe a tarefa'),
   minutesAmount: zod
@@ -19,12 +22,15 @@ const newCycleFormValidationSchema = zod.object({
     .max(60, 'O ciclo precisa ser de no máximo 60 minutos.'),
 })
 
+type NewCycleFormData = zod.infer<typeof newCycleFormValidationSchema>
+
 export function Home() {
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm({
+    reset,
+  } = useForm<NewCycleFormData>({
     resolver: zodResolver(newCycleFormValidationSchema),
     defaultValues: {
       task: '',
@@ -32,8 +38,16 @@ export function Home() {
     },
   })
 
-  function handleCreateNewCycle(data: any) {
+  useEffect(() => {
+    if (Object.keys(errors).length > 0) {
+      toast.error('Verifique os campos')
+    }
+  }, [errors])
+
+  function handleCreateNewCycle(data: NewCycleFormData) {
     console.log(data)
+    toast.success('Iniciado com sucesso')
+    reset()
   }
 
   return (
