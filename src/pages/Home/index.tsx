@@ -60,7 +60,7 @@ export function Home() {
         {activeCycle ? (
           <Button type="button" onClick={interruptCycle} variant="danger">
             <>
-              <HandPalm size={24} /> Parar
+              <HandPalm size={24} /> Interromper
             </>
           </Button>
         ) : (

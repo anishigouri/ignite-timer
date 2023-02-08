@@ -31,6 +31,8 @@ export function cyclesReducer(state: ICyclesState, action: any) {
         return state
       }
 
+      document.title = `Ignite timer`
+
       return produce(state, (draft) => {
         draft.activeCycleId = null
         draft.cycles[currentCycleIndex].interruptedDate = new Date()
