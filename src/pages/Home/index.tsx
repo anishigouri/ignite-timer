@@ -1,32 +1,15 @@
 import { HandPalm, Play } from 'phosphor-react'
 
-import { Button } from '../../components/Button'
-import { HomeContainer } from './styles'
-import { createContext, useEffect, useState } from 'react'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useContext, useEffect } from 'react'
+import { FormProvider, useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
+import * as zod from 'zod'
+import { Button } from '../../components/Button'
 import { Countdown } from './components/Countdown'
 import { NewCycleForm } from './components/NewCycleForm'
-import { FormProvider, useForm } from 'react-hook-form'
-import * as zod from 'zod'
-import { zodResolver } from '@hookform/resolvers/zod'
-
-interface ICycle {
-  id: string
-  task: string
-  minutesAmount: number
-  startDate: Date
-  interruptedDate?: Date
-  finishedDate?: Date
-}
-interface CyclesContextType {
-  activeCycle: ICycle | undefined
-  activeCycleId: string | null
-  markCurrentCycleAsFinished: () => void
-  amountSecondsPassed: number
-  setSecondsPassed: (seconds: number) => void
-}
-
-export const CycleContext = createContext({} as CyclesContextType)
+import { HomeContainer } from './styles'
+import { CycleContext } from '../../contexts/CyclesContext'
 
 const newCycleFormValidationSchema = zod.object({
   task: zod.string().min(1, 'Informe a tarefa'),
@@ -39,9 +22,8 @@ const newCycleFormValidationSchema = zod.object({
 type NewCycleFormData = zod.infer<typeof newCycleFormValidationSchema>
 
 export function Home() {
-  const [cycles, setCycles] = useState<ICycle[]>([])
-  const [activeCycleId, setActiveCycleId] = useState<string | null>(null)
-  const [amountSecondsPassed, setAmountSecondsPassed] = useState(0)
+  const { createNewCycle, interruptCycle, activeCycle } =
+    useContext(CycleContext)
 
   const newCycleForm = useForm<NewCycleFormData>({
     resolver: zodResolver(newCycleFormValidationSchema),
@@ -57,24 +39,6 @@ export function Home() {
     formState: { errors },
   } = newCycleForm
 
-  const activeCycle = cycles.find((cycle) => cycle.id === activeCycleId)
-
-  function markCurrentCycleAsFinished() {
-    setCycles((state) =>
-      state.map((cycle) => {
-        if (cycle.id === activeCycleId) {
-          return { ...cycle, finishedDate: new Date() }
-        } else {
-          return cycle
-        }
-      }),
-    )
-  }
-
-  function setSecondsPassed(seconds: number) {
-    setAmountSecondsPassed(seconds)
-  }
-
   useEffect(() => {
     if (Object.keys(errors).length > 0) {
       toast.error('Verifique os campos')
@@ -82,53 +46,19 @@ export function Home() {
   }, [errors])
 
   function handleCreateNewCycle(data: NewCycleFormData) {
-    const id = new Date().getTime().toString()
-    const newCycle: ICycle = {
-      id,
-      minutesAmount: data.minutesAmount,
-      task: data.task,
-      startDate: new Date(),
-    }
-
-    setCycles((state) => [...state, newCycle])
-    setActiveCycleId(id)
-    setAmountSecondsPassed(0)
+    createNewCycle(data)
     reset()
-  }
-
-  function handleInterruptCycle() {
-    event?.preventDefault()
-    setCycles((state) =>
-      state.map((cycle) => {
-        if (cycle.id === activeCycleId) {
-          return { ...cycle, interruptedDate: new Date() }
-        } else {
-          return cycle
-        }
-      }),
-    )
-    setActiveCycleId(null)
   }
 
   return (
     <HomeContainer>
       <form onSubmit={handleSubmit(handleCreateNewCycle)} action="">
-        <CycleContext.Provider
-          value={{
-            activeCycle,
-            activeCycleId,
-            markCurrentCycleAsFinished,
-            amountSecondsPassed,
-            setSecondsPassed,
-          }}
-        >
-          <FormProvider {...newCycleForm}>
-            <NewCycleForm />
-          </FormProvider>
-          <Countdown />
-        </CycleContext.Provider>
+        <FormProvider {...newCycleForm}>
+          <NewCycleForm />
+        </FormProvider>
+        <Countdown />
         {activeCycle ? (
-          <Button type="button" onClick={handleInterruptCycle} variant="danger">
+          <Button type="button" onClick={interruptCycle} variant="danger">
             <>
               <HandPalm size={24} /> Parar
             </>
