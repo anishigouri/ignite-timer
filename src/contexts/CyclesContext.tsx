@@ -45,17 +45,20 @@ export function CyclesContextProvider({
       cycles: [],
       activeCycleId: null,
     },
-    () => {
+    (initialValues) => {
       const storageStateAsJSON = localStorage.getItem(
         '@ignite-time:cycles-state-1.0.0',
       )
       if (storageStateAsJSON) {
         return JSON.parse(storageStateAsJSON)
       }
+
+      return initialValues
     },
   )
 
-  const { activeCycleId, cycles } = cyclesState
+  const { cycles } = cyclesState
+  const activeCycleId = ''
 
   const activeCycle = cycles.find((cycle) => cycle.id === activeCycleId)
 
