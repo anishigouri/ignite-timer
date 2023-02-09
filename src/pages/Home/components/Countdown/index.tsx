@@ -31,6 +31,7 @@ export function Countdown() {
   useEffect(() => {
     let interval: number
     if (activeCycle) {
+      console.log('ativando ciclo')
       interval = setInterval(() => {
         const secondsDifference = differenceInSeconds(
           new Date(),
